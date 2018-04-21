@@ -107,8 +107,7 @@ public class InfoActivity extends AppCompatActivity {
         checkPermissions();
         textDescription = findViewById(R.id.descriptionMap);
         textTitle = findViewById(R.id.titleMap);
-        textTitle.setText(getIntent().getExtras().getString("title"));
-        textDescription.setText(getIntent().getExtras().getString("description"));
+
         infoButton = findViewById(R.id.info_button);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         BottomNavigationView bottomNavigationView =
@@ -154,6 +153,8 @@ public class InfoActivity extends AppCompatActivity {
     private void setPoints() {
 
     }
+
+
 
     private void routeMap() {
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapfragment);
@@ -330,7 +331,8 @@ public class InfoActivity extends AppCompatActivity {
             posManager.start(
                     PositioningManager.LocationMethod.GPS_NETWORK);
         }
-
+        textTitle.setText(getIntent().getExtras().getString("title"));
+        textDescription.setText(getIntent().getExtras().getString("description"));
         mapFragment.init(new OnEngineInitListener() {
             @Override
             public void onEngineInitializationCompleted(OnEngineInitListener.Error error) {
@@ -466,7 +468,8 @@ public class InfoActivity extends AppCompatActivity {
         // create a MapCircle centered at current location with radius 400
         m_circle = new MapCircle(400.0, geoCoordinate);
         m_circle.setLineColor(Color.BLUE);
-        m_circle.setFillColor(Color.rgb(80,80,80));
+
+        m_circle.setFillColor(Color.YELLOW);
 //        m_circle.setFillColor(Color.GRAY);
         m_circle.setLineWidth(2);
         map.addMapObject(m_circle);
