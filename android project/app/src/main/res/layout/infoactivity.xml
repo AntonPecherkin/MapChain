@@ -1,64 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@color/colorPrimary"
+    >
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-    <!-- Map Fragment embedded with the map object -->
-    <fragment
-        android:layout_weight="1"
-        class="com.here.android.mpa.mapping.MapFragment"
-        android:id="@+id/mapfragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <!-- Map Fragment embedded with the map object -->
+        <LinearLayout
+
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="14"
+            >
+
+            <TextView
+                android:id="@+id/titleMap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:shadowColor="@color/shadow"
+                android:shadowDx="@integer/shadowDx"
+                android:shadowDy="@integer/shadowDy"
+                android:shadowRadius="@integer/shadowRadius"
+                android:text="grregrregegr"
+                android:textColor="@color/white"
+                android:textSize="30dp"/>
+
+
+            <TextView
+                android:id="@+id/descriptionMap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:shadowColor="@color/shadow"
+                android:shadowDx="@integer/shadowDx"
+                android:shadowDy="@integer/shadowDy"
+                android:shadowRadius="@integer/shadowRadius"
+                android:text="grregrregegr"
+
+                android:textColor="@color/white"/>
+        </LinearLayout>
+
+        <fragment
+            android:id="@+id/mapfragment"
+            class="com.here.android.mpa.mapping.MapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="9"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="12"
+            android:layout_margin="15dp"
             android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/titleMap"
-            android:text="grregrregegr"
-            android:layout_margin="15dp"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/descriptionMap"
-                android:text="grregrregegr"
-                android:layout_margin="15dp"/>
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/e1"
-                    android:layout_weight="1"/>
-                <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/e2"
 
-                    android:layout_weight="1"/>
                 <ImageView
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/e3"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:src="@drawable/e1"/>
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+
+                    android:src="@drawable/e2"/>
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:src="@drawable/e3"/>
+
                 <Button
+                    android:id="@+id/info_button"
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
-                    android:text="Info"
-                    android:id="@+id/info_button"
-                    android:layout_weight="5"/>
+                    android:layout_weight="5"
+                    android:text="Info"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -70,5 +106,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_gravity="bottom"
+        android:background="@color/colorPrimaryDark"
+        app:itemTextColor="@color/white"
         app:menu="@menu/my_navigation_items"/>
 </FrameLayout>

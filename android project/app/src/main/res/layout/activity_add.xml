@@ -12,13 +12,15 @@
             android:layout_width="match_parent"
             android:layout_margin="15dp"
             android:hint="QuestName"
+            android:id="@+id/password_deploy"
             android:layout_height="wrap_content"/>
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
-            android:text="Deploy"/>
+            android:text="Deploy"
+            android:id="@+id/deploy_button"/>
 
     </LinearLayout>
 

@@ -1,6 +1,8 @@
 package com.example.franck.mapchain.view;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -16,6 +18,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,11 +28,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.franck.mapchain.R;
 import com.example.franck.mapchain.adapters.MyAdapter;
+import com.example.franck.mapchain.contracts.generated.MapChain;
+import com.example.franck.mapchain.etherium.EtheriumRunner;
 import com.example.franck.mapchain.fragments.FireMissilesDialogFragment;
 import com.example.franck.mapchain.fragments.InfoButtonFragment;
 import com.here.android.mpa.common.GeoBoundingBox;
@@ -49,11 +56,23 @@ import com.here.android.mpa.routing.RouteOptions;
 import com.here.android.mpa.routing.RoutePlan;
 import com.here.android.mpa.routing.RouteResult;
 
+import org.web3j.crypto.Credentials;
+import org.web3j.crypto.WalletUtils;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.Web3jFactory;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.Contract;
+import org.web3j.tx.ManagedTransaction;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -61,6 +80,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class InfoActivity extends AppCompatActivity {
 
@@ -73,7 +93,15 @@ public class InfoActivity extends AppCompatActivity {
     private MapFragment mapFragment = null;
     private boolean paused = true;
     private TextView textTitle;
+    private static int countQuest = -1;
     private MapCircle m_circle;
+    private String[] storyQuest = new String[] {
+            "Go to this point, to save mr.Durov","This is 3 points, you must to go there and find prices","Sculptures near the house. The sculpture of the Russian and American writer\n" +
+            "English word in quotes","Unexpectedly, there are no such cathedrals in Atlanta or Savannah. But there is one in Moscow. In the nearest public garden find a board with historical information\n" +
+            "Name of the poem mentioned on the board","A little less than 70,000 km² or just over 57,000 km². We will not argue which of the variants is correct. In its middle there is a square, and in it - information signs about trees and bushes. You need a tablet dedicated to the mahonia.\n" +
+            "Write the second world.", "Complete Quest"
+    };
+
     private TextView textDescription;
     private GeoCoordinate currentGeoCoordinate = new GeoCoordinate(55.779588, 37.6013881);
     private GeoCoordinate firstGeo = new GeoCoordinate(55.765386, 37.577550);
@@ -84,6 +112,8 @@ public class InfoActivity extends AppCompatActivity {
     private GeoCoordinate secondGeoQuest = new GeoCoordinate(55.766049, 37.577982);
     private GeoCoordinate thirdGeoQuest = new GeoCoordinate(55.766554, 37.577839 );
     private PositioningManager posManager;
+    private boolean paid = false;
+    private MyTask myTask;
     private MapPolyline m_polyline;
     private LocationManager locationManager;
     private Button infoButton;
@@ -127,13 +157,61 @@ public class InfoActivity extends AppCompatActivity {
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.action_start:
+                                //Exit from contract
                                 break;
                             case R.id.action_pay:
-                                FireMissilesDialogFragment fireMissilesDialogFragment = new FireMissilesDialogFragment();
-                                fireMissilesDialogFragment.show(getSupportFragmentManager(), "few");
+
+//                                FireMissilesDialogFragment fireMissilesDialogFragment = new FireMissilesDialogFragment();
+//                                fireMissilesDialogFragment.show(getSupportFragmentManager(), "few");
+                                if(countQuest == -1) {initDialog(getCurrentFocus());break;}
+                                if(countQuest == 5) {
+                                    break;
+                                }
+                                if(countQuest == 4) {
+                                    initDialogFinish(getCurrentFocus());
+                                    break;
+                                }
+                                else{
+                                    initDialogWithoutPaid(getCurrentFocus());
+                                }
+
                                 break;
                             case R.id.action_next:
-                                actionNext();
+                                if(paid) {
+                                    paid = false;
+                                    if (countQuest == 5) {
+                                        Toast.makeText(getApplicationContext(), "You complete Quest", Toast.LENGTH_LONG);
+                                        break;
+                                    }
+                                    if (countQuest == 0) {
+//                                        myTask = new MyTask();
+//                                        myTask.execute();
+                                        actionNext();
+                                        break;
+                                    }
+
+
+                                    if (countQuest == 4) {
+                                        textDescription.setText(storyQuest[countQuest]);
+                                        break;
+                                    }
+                                    if (countQuest == 1) {
+                                        map.removeMapObject(m_circle);
+                                        map.removeMapObject(mapRoute);
+                                        setPoints(firstGeoQuest);
+                                        break;
+                                    }
+                                    if (countQuest == 2) {
+                                        setPoints(secondGeoQuest);
+                                        break;
+                                    }
+                                    if (countQuest == 3) {
+                                        setPoints(thirdGeoQuest);
+                                        break;
+                                    }
+                                }
+
+
                                 break;
                         }
                         return true;
@@ -142,18 +220,228 @@ public class InfoActivity extends AppCompatActivity {
     }
 
     private void actionNext() {
+
         initState();
-        SystemClock.sleep(2_000);
+
         routeMap();
-        SystemClock.sleep(2_000);
-        setPoints();
+
 
     }
 
-    private void setPoints() {
+    private void initDialog(View view) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(InfoActivity.this);
 
+        //AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+        // Setting Dialog Title
+
+
+        // Setting Dialog Message
+        alertDialog.setMessage("Enter Password to pay 0.5 ETH");
+        alertDialog.setTitle("Password Etherium");
+        final EditText input = new EditText(InfoActivity.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        alertDialog.setView(input); // uncomment this line
+        //alertDialog.setView(input);
+
+        // Setting Icon to Dialog
+        alertDialog.setIcon(R.drawable.name);
+
+        // Setting Positive "Yes" Button
+        alertDialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int which) {
+                        setCredentialClient(input.getText().toString());
+                        countQuest++;
+                        paid = true;
+                        // Write your code here to execute after dialog
+                        Toast.makeText(getApplicationContext(),"Password Matched", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("NO",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Write your code here to execute after dialog
+                        dialog.cancel();
+                    }
+                });
+
+        // closed
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 
+    private void initDialogFinish(View view) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(InfoActivity.this);
+
+        //AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+        // Setting Dialog Title
+
+
+        // Setting Dialog Message
+        alertDialog.setMessage("Do you want finish?");
+
+        //alertDialog.setView(input);
+
+        // Setting Icon to Dialog
+        alertDialog.setIcon(R.drawable.name);
+        alertDialog.setTitle("Finish");
+        // Setting Positive "Yes" Button
+        alertDialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int which) {
+                        // Write your code here to execute after dialog
+                        Toast.makeText(getApplicationContext(),"FINISHED", Toast.LENGTH_LONG).show();
+                        countQuest++;
+                        paid = true;
+                    }
+                });
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("NO",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Write your code here to execute after dialog
+                        returnMoney("123");
+                        dialog.cancel();
+                    }
+                });
+
+        // closed
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    private void initDialogWithoutPaid(View view) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(InfoActivity.this);
+
+        //AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+        // Setting Dialog Title
+
+
+        // Setting Dialog Message
+        alertDialog.setMessage("Are you sure?");
+
+        //alertDialog.setView(input);
+
+        // Setting Icon to Dialog
+        alertDialog.setIcon(R.drawable.name);
+        alertDialog.setTitle("Next");
+        // Setting Positive "Yes" Button
+        alertDialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int which) {
+                        // Write your code here to execute after dialog
+                        Toast.makeText(getApplicationContext(),"Password Matched", Toast.LENGTH_SHORT).show();
+                        countQuest++;
+                        paid = true;
+                    }
+                });
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("NO",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Write your code here to execute after dialog
+                        returnMoney("123");
+                        dialog.cancel();
+                    }
+                });
+
+        // closed
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    private void setCredentialClient(String password) {
+        EtheriumRunner etheriumRunner = new EtheriumRunner();
+
+        String filename = "UTC--2018-04-21T23-23-56_772048000Z--09a5dacb427cc8fd596e5b1640fa539dac1a5d6d";
+        String string = EtheriumRunner.jsonClient;
+        FileOutputStream outputStream;
+        try {
+            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream.write(string.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try{etheriumRunner.init(password, new File(getApplicationContext().getFilesDir(), filename), "client");}
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void returnMoney(String password) {
+        EtheriumRunner etheriumRunner = new EtheriumRunner();
+
+        String filename = "UTC--2018-04-21T23-23-56_772048000Z--09a5dacb427cc8fd596e5b1640fa539dac1a5d6d";
+        String string = EtheriumRunner.jsonClient;
+        FileOutputStream outputStream;
+        try {
+            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream.write(string.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try{etheriumRunner.returnMoney(password, new File(getApplicationContext().getFilesDir(), filename),getApplicationContext());}
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void setPoints(final GeoCoordinate geoCoordinate) {
+        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapfragment);
+        mapFragment.init(new OnEngineInitListener() {
+            @Override
+            public void onEngineInitializationCompleted(OnEngineInitListener.Error error) {
+                if (error == OnEngineInitListener.Error.NONE) {
+//                                            GeoCoordinate position = new GeoCoordinate(locationTest.getLatitude(), locationTest.getLongitude());
+                    // retrieve a reference of the map from the map fragment
+                    addPoint(geoCoordinate);
+                    textDescription.setText(storyQuest[countQuest]);
+//
+//                    createPolyline(firstGeo, secondGeo);
+//                    createPolyline(secondGeo, thirdGeo);
+//                    createPolyline(thirdGeo, firstGeo);
+
+                } else {
+                    Log.e(TAG, "Cannot initialize MapFragment (" + error + ")");
+                }
+            }
+        });
+    }
+
+    private void addPoint(GeoCoordinate geoCoordinate) {
+        map = mapFragment.getMap();
+        // Set the map center coordinate to the Vancouver region (no animation)
+//                                            Log.d(TAG, "ALT " + locationTest.getAltitude() + " " + locationTest.getLongitude());
+        map.setCenter(geoCoordinate,
+                Map.Animation.NONE);
+        // Set the map zoom level to the average between min and max (no animation)
+        map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()));
+        MapMarker marker = new MapMarker();
+        PositioningManager posManager = PositioningManager.getInstance();
+        posManager.start(PositioningManager.LocationMethod.GPS_NETWORK);
+
+        posManager.start(PositioningManager.LocationMethod.GPS);
+        Log.d(TAG, "onEngineInitializationCompleted: " +
+                posManager.hasValidPosition(PositioningManager.LocationMethod.GPS_NETWORK));
+        boolean temp = posManager.hasValidPosition(PositioningManager.LocationMethod.GPS_NETWORK);
+        Log.d(TAG, Boolean.toString(temp));
+
+        marker.setCoordinate(geoCoordinate);
+        map.addMapObject(marker);
+    }
 
 
     private void routeMap() {
@@ -243,11 +531,11 @@ public class InfoActivity extends AppCompatActivity {
                     marker.setCoordinate(currentGeoCoordinate);
                     map.addMapObject(marker);
                     createCircle(startGeo);
+                    textDescription.setText(storyQuest[countQuest]);
 //
 //                    createPolyline(firstGeo, secondGeo);
 //                    createPolyline(secondGeo, thirdGeo);
 //                    createPolyline(thirdGeo, firstGeo);
-
                 } else {
                     Log.e(TAG, "Cannot initialize MapFragment (" + error + ")");
                 }
@@ -256,8 +544,11 @@ public class InfoActivity extends AppCompatActivity {
         });
     }
 
-
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        countQuest = -1;
+    }
 
     private void initialize() {
         setContentView(R.layout.infoactivity);
@@ -489,5 +780,25 @@ public class InfoActivity extends AppCompatActivity {
         m_polyline.setLineWidth(12);
         // add GeoPolyline to current active map
         map.addMapObject(m_polyline);
+    }
+
+    class MyTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d("ETHR", "ok pre exec action");
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                TimeUnit.SECONDS.sleep(2);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 }
