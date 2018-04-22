@@ -96,10 +96,13 @@ public class InfoActivity extends AppCompatActivity {
     private static int countQuest = -1;
     private MapCircle m_circle;
     private String[] storyQuest = new String[] {
-            "Go to this point, to save mr.Durov","This is 3 points, you must to go there and find prices","Sculptures near the house. The sculpture of the Russian and American writer\n" +
-            "English word in quotes","Unexpectedly, there are no such cathedrals in Atlanta or Savannah. But there is one in Moscow. In the nearest public garden find a board with historical information\n" +
-            "Name of the poem mentioned on the board","A little less than 70,000 km² or just over 57,000 km². We will not argue which of the variants is correct. In its middle there is a square, and in it - information signs about trees and bushes. You need a tablet dedicated to the mahonia.\n" +
-            "Write the second world.", "Complete Quest"
+            "Go to this point, to save mr.Durov",
+            "This is 1 point, you must to go there and find prices",
+            "Sculptures near the house. The sculpture of the Russian and American writer\n" +
+                    "English word in quotes",
+            "Unexpectedly, there are no such cathedrals in Atlanta or Savannah. But there is one in Moscow. In the nearest public garden find a board with historical information",
+            "A little less than 70,000 km² or just over 57,000 km². We will not argue which of the variants is correct.",
+            "Complete Quest"
     };
 
     private TextView textDescription;
@@ -110,7 +113,7 @@ public class InfoActivity extends AppCompatActivity {
     private GeoCoordinate startGeo = new GeoCoordinate(55.767031, 37.578376);
     private GeoCoordinate firstGeoQuest = new GeoCoordinate(55.766449, 37.577217);
     private GeoCoordinate secondGeoQuest = new GeoCoordinate(55.766049, 37.577982);
-    private GeoCoordinate thirdGeoQuest = new GeoCoordinate(55.766554, 37.577839 );
+    private GeoCoordinate thirdGeoQuest = new GeoCoordinate(55.766554, 37.577839);
     private PositioningManager posManager;
     private boolean paid = false;
     private MyTask myTask;
@@ -126,6 +129,7 @@ public class InfoActivity extends AppCompatActivity {
                                 Map.Animation.NONE);
                     }
                 }
+
                 public void onPositionFixChanged(PositioningManager.LocationMethod method,
                         PositioningManager.LocationStatus status) {
                 }
@@ -157,27 +161,29 @@ public class InfoActivity extends AppCompatActivity {
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.action_start:
-                                //Exit from contract
+                                initDialogFinish(getCurrentFocus());
                                 break;
                             case R.id.action_pay:
 
 //                                FireMissilesDialogFragment fireMissilesDialogFragment = new FireMissilesDialogFragment();
 //                                fireMissilesDialogFragment.show(getSupportFragmentManager(), "few");
-                                if(countQuest == -1) {initDialog(getCurrentFocus());break;}
-                                if(countQuest == 5) {
+                                if (countQuest == -1) {
+                                    initDialog(getCurrentFocus());
                                     break;
                                 }
-                                if(countQuest == 4) {
+                                if (countQuest == 5) {
+                                    break;
+                                }
+                                if (countQuest == 4) {
                                     initDialogFinish(getCurrentFocus());
                                     break;
-                                }
-                                else{
+                                } else {
                                     initDialogWithoutPaid(getCurrentFocus());
                                 }
 
                                 break;
                             case R.id.action_next:
-                                if(paid) {
+                                if (paid) {
                                     paid = false;
                                     if (countQuest == 5) {
                                         Toast.makeText(getApplicationContext(), "You complete Quest", Toast.LENGTH_LONG);
@@ -189,7 +195,6 @@ public class InfoActivity extends AppCompatActivity {
                                         actionNext();
                                         break;
                                     }
-
 
                                     if (countQuest == 4) {
                                         textDescription.setText(storyQuest[countQuest]);
@@ -211,7 +216,6 @@ public class InfoActivity extends AppCompatActivity {
                                     }
                                 }
 
-
                                 break;
                         }
                         return true;
@@ -225,7 +229,6 @@ public class InfoActivity extends AppCompatActivity {
 
         routeMap();
 
-
     }
 
     private void initDialog(View view) {
@@ -234,7 +237,6 @@ public class InfoActivity extends AppCompatActivity {
         //AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
 
         // Setting Dialog Title
-
 
         // Setting Dialog Message
         alertDialog.setMessage("Enter Password to pay 0.5 ETH");
@@ -253,12 +255,12 @@ public class InfoActivity extends AppCompatActivity {
         // Setting Positive "Yes" Button
         alertDialog.setPositiveButton("YES",
                 new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int which) {
+                    public void onClick(DialogInterface dialog, int which) {
                         setCredentialClient(input.getText().toString());
                         countQuest++;
                         paid = true;
                         // Write your code here to execute after dialog
-                        Toast.makeText(getApplicationContext(),"Password Matched", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Password Matched", Toast.LENGTH_SHORT).show();
                     }
                 });
         // Setting Negative "NO" Button
@@ -283,7 +285,6 @@ public class InfoActivity extends AppCompatActivity {
 
         // Setting Dialog Title
 
-
         // Setting Dialog Message
         alertDialog.setMessage("Do you want finish?");
 
@@ -295,9 +296,9 @@ public class InfoActivity extends AppCompatActivity {
         // Setting Positive "Yes" Button
         alertDialog.setPositiveButton("YES",
                 new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int which) {
+                    public void onClick(DialogInterface dialog, int which) {
                         // Write your code here to execute after dialog
-                        Toast.makeText(getApplicationContext(),"FINISHED", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "FINISHED", Toast.LENGTH_LONG).show();
                         countQuest++;
                         paid = true;
                     }
@@ -307,7 +308,7 @@ public class InfoActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Write your code here to execute after dialog
-                        returnMoney("123");
+//                        returnMoney("123");
                         dialog.cancel();
                     }
                 });
@@ -325,7 +326,6 @@ public class InfoActivity extends AppCompatActivity {
 
         // Setting Dialog Title
 
-
         // Setting Dialog Message
         alertDialog.setMessage("Are you sure?");
 
@@ -337,9 +337,9 @@ public class InfoActivity extends AppCompatActivity {
         // Setting Positive "Yes" Button
         alertDialog.setPositiveButton("YES",
                 new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int which) {
+                    public void onClick(DialogInterface dialog, int which) {
                         // Write your code here to execute after dialog
-                        Toast.makeText(getApplicationContext(),"Password Matched", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Password Matched", Toast.LENGTH_SHORT).show();
                         countQuest++;
                         paid = true;
                     }
@@ -374,8 +374,9 @@ public class InfoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        try{etheriumRunner.init(password, new File(getApplicationContext().getFilesDir(), filename), "client");}
-        catch (Exception e) {
+        try {
+            etheriumRunner.init(password, new File(getApplicationContext().getFilesDir(), filename), "client");
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -394,11 +395,13 @@ public class InfoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        try{etheriumRunner.returnMoney(password, new File(getApplicationContext().getFilesDir(), filename),getApplicationContext());}
-        catch (Exception e) {
+        try {
+            etheriumRunner.returnMoney(password, new File(getApplicationContext().getFilesDir(), filename), getApplicationContext());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private void setPoints(final GeoCoordinate geoCoordinate) {
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapfragment);
         mapFragment.init(new OnEngineInitListener() {
@@ -443,7 +446,6 @@ public class InfoActivity extends AppCompatActivity {
         map.addMapObject(marker);
     }
 
-
     private void routeMap() {
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapfragment);
         mapFragment.init(new OnEngineInitListener() {
@@ -457,7 +459,6 @@ public class InfoActivity extends AppCompatActivity {
 //                                            Log.d(TAG, "ALT " + locationTest.getAltitude() + " " + locationTest.getLongitude());
                     map.setCenter(currentGeoCoordinate,
                             Map.Animation.NONE);
-
 
                     MapMarker marker1 = new MapMarker();
                     PositioningManager posManager1 = PositioningManager.getInstance();

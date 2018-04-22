@@ -24,12 +24,12 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayoutManager mLayoutManager;
     private MyAdapter mAdapter;
 
-    private String[] myDataset = new String[] {"Trololo", "Roscomsvoboda", "DoublePenitration", "Kill your mom", "Doctor", "Somewhere",
-            "Trololo", "Roscomsvoboda", "DoublePenitration", "Kill your mom", "Doctor", "Somewhere"};
+    private String[] myDataset = new String[] {"Trololo", "Roscomsvoboda", "PozorPapy", "MaminSimpotyaga", "Doctor", "Somewhere",
+            "Trololo1", "Roscomsvoboda", "Quest1", "RoscomNadzorHere", "Doctor", "Somewhere"};
     private String[] description = new String[] {"Smth about Trololo", "Smth about Roscomsvoboda",
-            "Smth about DoublePenitration", "Smth about Kill your mom", "Smth about Doctor", "Smth about Somewhere",
-            "Smth about Trololo", "Smth about Roscomsvoboda", "Smth about DoublePenitration",
-            "Smth about Kill your mom", "Smth about Doctor", "Smth about Somewhere"};
+            "Smth about MaminSimpotyaga", "Smth about MaminSimpotyaga", "Smth about Doctor", "Smth about Somewhere",
+            "Smth about Trololo", "Smth about Roscomsvoboda", "Smth about MaminSimpotyaga",
+            "Smth about MaminSimpotyaga", "Smth about Doctor", "Smth about Somewhere"};
     private List<Integer> imageViews = new ArrayList<Integer>();
 
     @Override

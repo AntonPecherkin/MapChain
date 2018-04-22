@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.franck.mapchain.R;
 import com.example.franck.mapchain.adapters.MyAdapter;
@@ -50,10 +51,12 @@ public class AddQuest extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 //                textInputEditText.getText().toString();
+
                 try{etheriumRunner.init(textInputEditText.getText().toString(), new File(getApplicationContext().getFilesDir(), filename),"creator");}
                 catch (Exception e) {
                     e.printStackTrace();
                 }
+                Toast.makeText(getApplicationContext(), "Deploy", Toast.LENGTH_LONG);
             }
         });
     }
